@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Homepage</title>
+    <!-- scripts -->
+    <script type="text/javascript" src="vue/vue.min.js"></script>
+</head>
+<body>
+    <div id="app">
+        <ul>
+            <li v-for="name in names"> {{ name.name | capitalize}}</li>
+        </ul>
+        <input type="text" v-model="username" v-on:keyup.enter="addName">
+        <button v-on:click="addName">+ Add Name</button>
+    </div>
+
+    <script>
+        var app = new Vue({
+            el : "#app",
+            data :{
+                names : [
+                {name : "samba"},
+                {name : "lamin"}
+                ],
+                username : ""
+                
+            },
+            methods : {
+                    addName : function() {
+                       this.names.push({name : this.username})
+                       this.username = "";
+                       e.preventDefault();
+                    }
+                },
+            filters : {
+                capitalize : function(value) {
+                    return value.toUpperCase();
+                }
+            }
+            
+             
+        })
+    </script>
+</body>
+</html>
