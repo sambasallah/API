@@ -5,12 +5,13 @@ import (
 	"net/http"
 	"log"
 	"html/template"
+	"github.com/gorilla/mux"
 )
 
 // functions to handle routes
 
 func Index(w http.ResponseWriter, r *http.Request) {
-	index := template.Must(template.ParseFiles("static/index.html"))
+	index := template.Must(template.ParseFiles("index.html"))
 	index.Execute(w,nil)
 }
 
@@ -42,14 +43,12 @@ func SingleCategoryView(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	
+	r := mux.NewRouter()
 	// defining routes
-	http.HandleFunc("/",Index)
-	http.HandleFunc("/about",About)
-	http.HandleFunc("/products",Products)
-	http.HandleFunc("/products/{id}",SingleProductView)
-	http.HandleFunc("/categories",Categories)
-	http.HandleFunc("/categories/{id}",SingleCategoryView)
-	http.Handle("/css/", http.StripPrefix("/css/", http.FileServer(http.Dir("static/css"))))
+	r.HandleFunc("/",Index)
 
-	log.Fatal(http.ListenAndServe(":8000",nil))
+	// We will setup our server so we can serve static assest like images, css from the /static/{file} route
+	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("./static/"))))
+
+	log.Fatal(http.ListenAndServe(":8000",r))
 }

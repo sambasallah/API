@@ -185,10 +185,13 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 
 	err := json.Unmarshal([]byte(reqBody),&data)
 
+	
+
 	if err != nil {
 		panic(err.Error())
 	}
 
+	// user_id := data["user_id"]
 	username := data["username"]
 	password := data["password"]
 	first_name := data["first_name"]
@@ -196,14 +199,15 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	dob := data["dob"]
 	address := data["address"]
 
+
 	db, err := sql.Open("mysql", "root:Y7enqxal!@/ebaaba")
 
 	defer db.Close()
 
 	if err != nil {
-		panic(err.Error())
+		fmt.Println("There was an error connecting to the database")
 	}
-	result, err := db.Query("UPDATE users SET username=?,password=?,first_name=?,last_name=?,dob=?,address=? WHERE user_id=?",username,password,first_name,last_name,dob,address,id)
+	result, err := db.Query("UPDATE users SET username=?, password=?, first_name=?, last_name=?, dob=?, address=? WHERE user_id = ?",username,password,first_name,last_name,dob,address,id)
 	defer result.Close()
 	if err != nil {
 		fmt.Println("There was an error in your query")
