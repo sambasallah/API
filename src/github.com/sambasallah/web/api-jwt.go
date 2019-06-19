@@ -85,7 +85,7 @@ func main() {
   // /status - which we will call to make sure that our API is up and running
   // /products - which will retrieve a list of products that the user can leave feedback on
   // /products/{slug}/feedback - which will capture user feedback on products
-  r.Handle("/status", NotImplemented).Methods("GET")
+  r.Handle("/status", StatusHandler).Methods("GET")
   /* We will add the middleware to our products and feedback routes. The status route will be publicly accessible */
   r.Handle("/products", jwtMiddleware.Handler(ProductsHandler)).Methods("GET")
   r.Handle("/products/{slug}/feedback", jwtMiddleware.Handler(AddFeedbackHandler)).Methods("POST")

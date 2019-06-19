@@ -243,8 +243,10 @@ func AllProducts(w http.ResponseWriter, r *http.Request) {
 		}
 		allProducts = append(allProducts, product)
 	}
+	
 	gz := gzip.NewWriter(w)
 	json.NewEncoder(gz).Encode(allProducts)
+
 	gz.Close()
 
 	fmt.Println("AllProducts Endpoint Hit")
