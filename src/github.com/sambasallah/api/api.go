@@ -10,7 +10,11 @@ import (
 	_"github.com/go-sql-driver/mysql"
 	"compress/gzip"
 	"io/ioutil"
-	
+	"github.com/gorilla/handlers"
+	"os"
+	"github.com/dgrijalva/jwt-go"
+	"github.com/auth0/go-jwt-middleware"
+	"time"
 )
 
 type Users struct {
@@ -350,6 +354,50 @@ func DeleteProduct(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+var UpdateProduct = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type","application/json")
+	param := mux.Vars(r)
+	id := param["id"]
+
+	var data map[string]string
+
+	reqBody, _ := ioutil.ReadAll(r.Body)
+
+	err := json.Unmarshal([]byte(reqBody),&data)
+
+	
+
+	if err != nil {
+		panic(err.Error())
+	}
+
+	product_name := data["product_name"]
+	product_description := data["product_description"]
+	colors := data["colors"]
+	images := data["images"]
+	product_price := data["product_price"]
+	product_selling_price := data["product_selling_price"]
+	sizes := data["sizes"]
+
+
+	db, err := sql.Open("mysql", "root:Y7enqxal!@/ebaaba")
+
+	defer db.Close()
+
+	if err != nil {
+		fmt.Println("There was an error connecting to the database")
+	}
+	result, err := db.Query("UPDATE products SET product_name=?, product_description=?, product_price=?, product_selling_price=?, sizes=?, colors=?, images=? WHERE user_id = ?",product_name,product_description,product_price,product_selling_price,sizes,colors,images,id)
+	defer result.Close()
+	if err != nil {
+		fmt.Println("There was an error in your query")
+	}else {
+		fmt.Println("User data has been successfully updated")
+	}
+
+	fmt.Println("Update Products Endpoint")
+})
+
 
 
 func main() {
@@ -372,7 +420,114 @@ func main() {
 
 	// update endpoints
 	router.HandleFunc("/api/update-user/{id}", UpdateUser).Methods("PUT")
+	router.Handle("/api/update-product/{id}", JWTMiddleware.Handler(UpdateProduct)).Methods("PUT")
+
+	// login to get token
+	router.HandleFunc("/api/login",Login).Methods("POST")
+
+	// status 
+	router.HandleFunc("/api/status",Status).Methods("GET")
+
+	// test
+	router.Handle("/secret",JWTMiddleware.Handler(Secret)).Methods("GET")
+
+
 	
-	log.Fatal(http.ListenAndServe(":8000",router))
+	log.Fatal(http.ListenAndServe(":9000",handlers.LoggingHandler(os.Stdout,router)))
 
 }
+
+func Status(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("API is up and running"))
+}
+
+var secretKey = []byte("secret-key")
+
+func Login(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type","application/json")
+	var data map[string]string
+
+	reqBody, err := ioutil.ReadAll(r.Body);
+
+	if err != nil {
+		panic(err.Error())
+	}
+
+	json.Unmarshal([]byte(reqBody),&data)
+
+
+	username := data["username"]
+	password := data["password"]
+
+	db, err := sql.Open("mysql","root:Y7enqxal!@/ebaaba")
+	defer db.Close()
+	if err != nil {
+		panic(err.Error())
+	}
+	var count int = 0
+	row, _ := db.Query("SELECT username,password FROM users WHERE username=? AND password=?",username,password)
+	
+	for row.Next() {
+		count++
+	}
+
+	if count == 1 {
+
+	// generating json web token
+	token := jwt.New(jwt.SigningMethodHS256)
+
+	// claiming ownership of the token
+	claim := token.Claims.(jwt.MapClaims)
+
+	claim["admin"] = true
+	claim["name"] = "samba sallah"
+	claim["exp"] = time.Now().Add(time.Hour * 24).Unix()
+
+	// sign or token with our secret key
+	signedToken, _ := token.SignedString(secretKey)
+
+	correct := map[string]string{"Authorization Token":signedToken}
+	json_correct, _ := json.Marshal(correct)
+	w.Write([]byte(json_correct))
+
+	}else {
+		wrong := `{"error":["Username & Password do not match"]}`
+		// json_wrong, _ := json.Marshal(wrong)
+		w.Write([]byte(wrong))
+	}	
+
+}
+
+
+var Secret = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("This is a secret data"))
+})
+
+
+var GetTokenHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+	// generating json web token
+
+	// generating json web token
+	token := jwt.New(jwt.SigningMethodHS256)
+
+	// claiming ownership of the token
+	claim := token.Claims.(jwt.MapClaims)
+
+	claim["admin"] = true
+	claim["name"] = "samba sallah"
+	claim["exp"] = time.Now().Add(time.Hour * 24).Unix()
+
+	// sign or token with our secret key
+	signedToken, _ := token.SignedString(secretKey)
+	
+	// write the token to the browser
+	w.Write([]byte(signedToken))
+})
+
+var JWTMiddleware = jwtmiddleware.New(jwtmiddleware.Options{
+	ValidationKeyGetter: func(token *jwt.Token) (interface{}, error) {
+		return secretKey, nil
+	},
+	SigningMethod:jwt.SigningMethodHS256,
+})
