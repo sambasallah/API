@@ -5,7 +5,7 @@ This is a simple API written in Go. It returns data is JSON format
 > Create a database with any name your like.
 - Create 2 tables users and products
 - User Table Columns - (user_id,username,password,first_name,last_name,dob,address) 
-- Products Table Columns(product_id,product_name,product_description,product_price,product_selling_price,sizes,colors,images)
+- Products Table Columns - (product_id,product_name,product_description,product_price,product_selling_price,sizes,colors,images)
 - Replace your database parameters with the constant variables declared on top of the api.go file
 # Endpoints
 `POST /api/login` 
