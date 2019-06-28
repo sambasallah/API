@@ -17,6 +17,13 @@ import (
 	"time"
 )
 
+// Database connection parameters
+const (
+	DBNAME = "MyDatabase"
+	DBUSERNAME = "USERNAME"
+	DBPASSWORD = "MYPASS"
+)
+
 type Users struct {
 	Id string `json:"user_id"`
 	Username string `json:"username"`
@@ -42,13 +49,17 @@ type Products struct {
 	ProductImages string `json:"product_images"`
 }
 
-func AllUsers(w http.ResponseWriter, r *http.Request) {
+func Status(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("API is up and running"))
+}
+
+var AllUsers = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	var user Users
 	var allUsers []Users
 	w.Header().Set("Content-Type","application/json")
 	w.Header().Set("Accept-Charset","utf-8")
 	w.Header().Set("Content-Encoding", "gzip")
-	db, err := sql.Open("mysql","root:Y7enqxal!@/ebaaba")
+	db, err := sql.Open("mysql",DBUSERNAME+":"+DBPASSWORD+"!@/"+DBNAME)
 	defer db.Close()
 	if err != nil {
 		panic(err.Error())
@@ -74,15 +85,15 @@ func AllUsers(w http.ResponseWriter, r *http.Request) {
 	
 	fmt.Println("AllUsers Endpoint Hit")
 	
-}
+})
 
-func UserById(w http.ResponseWriter, r *http.Request) {
+var UserById = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type","application/json")
 	w.Header().Set("Accept-Charset","utf-8")
 	w.Header().Set("Content-Encoding", "gzip")
 	param := mux.Vars(r)
 	id := param["id"]
-	db, err := sql.Open("mysql","root:Y7enqxal!@/ebaaba")
+	db, err := sql.Open("mysql",DBUSERNAME+":"+DBPASSWORD+"!@/"+DBNAME)
 	defer db.Close()
 	if err != nil {
 		panic(err.Error())
@@ -110,9 +121,9 @@ func UserById(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("UserById Endpoint Hit")
 
 
-}
+})
 
-func CreateUser(w http.ResponseWriter, r *http.Request) {
+var CreateUser = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type","application/json")
 
 	var data map[string]string
@@ -132,15 +143,15 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	dob := data["dob"]
 	address := data["address"]
 
-	conn, err := sql.Open("mysql","root:Y7enqxal!@/ebaaba")
+	db, err := sql.Open("mysql",DBUSERNAME+":"+DBPASSWORD+"!@/"+DBNAME)
 
-	defer conn.Close()
+	defer db.Close()
 
 	if err != nil {
 		panic(err.Error())
 	}
 
-	 insert,err := conn.Query("INSERT INTO users (user_id,username,password,first_name,last_name,dob,address) VALUES (?,?,?,?,?,?,?)",user_id,username,password,first_name,last_name,dob,address)
+	 insert,err := db.Query("INSERT INTO users (user_id,username,password,first_name,last_name,dob,address) VALUES (?,?,?,?,?,?,?)",user_id,username,password,first_name,last_name,dob,address)
 
 	 if err != nil {
 		 panic(err.Error())
@@ -152,15 +163,15 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	 insert.Close()
 	
 
-}
+})
 
-func DeleteUser(w http.ResponseWriter, r *http.Request) {
+var DeleteUser = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type","application/json")
 
 	param := mux.Vars(r)
 	id := param["id"]
 
-	db, err := sql.Open("mysql","root:Y7enqxal!@/ebaaba")
+	db, err := sql.Open("mysql",DBUSERNAME+":"+DBPASSWORD+"!@/"+DBNAME)
 	defer db.Close()
 
 	if err != nil {
@@ -176,9 +187,9 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	
-}
+})
 
-func UpdateUser(w http.ResponseWriter, r *http.Request) {
+var UpdateUser = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type","application/json")
 	param := mux.Vars(r)
 	id := param["id"]
@@ -188,8 +199,6 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	reqBody, _ := ioutil.ReadAll(r.Body)
 
 	err := json.Unmarshal([]byte(reqBody),&data)
-
-	
 
 	if err != nil {
 		panic(err.Error())
@@ -204,7 +213,7 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	address := data["address"]
 
 
-	db, err := sql.Open("mysql", "root:Y7enqxal!@/ebaaba")
+	db, err := sql.Open("mysql",DBUSERNAME+":"+DBPASSWORD+"!@/"+DBNAME)
 
 	defer db.Close()
 
@@ -220,16 +229,16 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fmt.Println("Update Users Endpoint")
-}
+})
 
 
-func AllProducts(w http.ResponseWriter, r *http.Request) {
+var AllProducts = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	var product Products
 	var allProducts []Products
 	w.Header().Set("Content-Type","application/json")
 	w.Header().Set("Accept-Charset","utf-8")
 	w.Header().Set("Content-Encoding", "gzip")
-	db, err := sql.Open("mysql","root:Y7enqxal!@/ebaaba")
+	db, err := sql.Open("mysql",DBUSERNAME+":"+DBPASSWORD+"!@/"+DBNAME)
 	defer db.Close()
 	if err != nil {
 		panic(err.Error())
@@ -247,23 +256,23 @@ func AllProducts(w http.ResponseWriter, r *http.Request) {
 		}
 		allProducts = append(allProducts, product)
 	}
-	
+
 	gz := gzip.NewWriter(w)
 	json.NewEncoder(gz).Encode(allProducts)
 
 	gz.Close()
 
 	fmt.Println("AllProducts Endpoint Hit")
-}
+})
 
 
-func ProductById(w http.ResponseWriter, r *http.Request) {
+var ProductById = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type","application/json")
 	w.Header().Set("Accept-Charset","utf-8")
 	w.Header().Set("Content-Encoding", "gzip")
 	param := mux.Vars(r)
 	id := param["id"]
-	db, err := sql.Open("mysql","root:Y7enqxal!@/ebaaba")
+	db, err := sql.Open("mysql",DBUSERNAME+":"+DBPASSWORD+"!@/"+DBNAME)
 	defer db.Close()
 	if err != nil {
 		panic(err.Error())
@@ -287,17 +296,17 @@ func ProductById(w http.ResponseWriter, r *http.Request) {
 		gz.Close()
 	}
 
-	
-	fmt.Println("ProductById Endpoint Hit")
-}
 
-func CreateProduct(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("ProductById Endpoint Hit")
+})
+
+var CreateProduct = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type","application/json")
 
 	var data map[string]string
-	
+
 	reqBody, _ := ioutil.ReadAll(r.Body)
-	
+
 	err := json.Unmarshal([]byte(reqBody),&data);
 
 	if err != nil {
@@ -312,33 +321,33 @@ func CreateProduct(w http.ResponseWriter, r *http.Request) {
 	colors := data["colors"]
 	images := data["images"]
 
-	conn, err := sql.Open("mysql","root:Y7enqxal!@/ebaaba")
+	db, err := sql.Open("mysql",DBUSERNAME+":"+DBPASSWORD+"!@/"+DBNAME)
 
-	defer conn.Close()
+	defer db.Close()
 
 	if err != nil {
 		panic(err.Error())
 	}
 
-	 insert,err := conn.Query("INSERT INTO products (product_id,product_name,product_description,product_price,product_selling_price,sizes,colors,images) VALUES (?,?,?,?,?,?,?,?)",product_id,product_name,product_description,product_price,product_selling_price,sizes,colors,images)
+	insert,err := db.Query("INSERT INTO products (product_id,product_name,product_description,product_price,product_selling_price,sizes,colors,images) VALUES (?,?,?,?,?,?,?,?)",product_id,product_name,product_description,product_price,product_selling_price,sizes,colors,images)
 
-	 if err != nil {
-		 panic(err.Error())
-	 }else {
-		 fmt.Println("Data successfully inserted into the database")
-	 }
+	if err != nil {
+		panic(err.Error())
+	}else {
+		fmt.Println("Data successfully inserted into the database")
+	}
 
-	 fmt.Println("done")
-	 insert.Close()
-}
+	fmt.Println("done")
+	insert.Close()
+})
 
-func DeleteProduct(w http.ResponseWriter, r *http.Request) {
+var DeleteProduct = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type","application/json")
 
 	param := mux.Vars(r)
 	id := param["id"]
 
-	db, err := sql.Open("mysql","root:Y7enqxal!@/ebaaba")
+	db, err := sql.Open("mysql",DBUSERNAME+":"+DBPASSWORD+"!@/"+DBNAME)
 	defer db.Close()
 
 	if err != nil {
@@ -352,7 +361,7 @@ func DeleteProduct(w http.ResponseWriter, r *http.Request) {
 	}else{
 		fmt.Println("Product deleted successfully")
 	}
-}
+})
 
 var UpdateProduct = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type","application/json")
@@ -380,7 +389,7 @@ var UpdateProduct = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request
 	sizes := data["sizes"]
 
 
-	db, err := sql.Open("mysql", "root:Y7enqxal!@/ebaaba")
+	db, err := sql.Open("mysql",DBUSERNAME+":"+DBPASSWORD+"!@/"+DBNAME)
 
 	defer db.Close()
 
@@ -405,21 +414,21 @@ func main() {
 	router := mux.NewRouter();
 
 	// get endpoints 
-	router.HandleFunc("/api/users",AllUsers).Methods("GET")
-	router.HandleFunc("/api/users/{id}", UserById).Methods("GET")
-	router.HandleFunc("/api/products",AllProducts).Methods("GET")
-	router.HandleFunc("/api/products/{id}",ProductById).Methods("GET")
+	router.Handle("/api/users",JWTMiddleware.Handler(AllUsers)).Methods("GET")
+	router.Handle("/api/users/{id}", JWTMiddleware.Handler(UserById)).Methods("GET")
+	router.Handle("/api/products",JWTMiddleware.Handler(AllProducts)).Methods("GET")
+	router.Handle("/api/products/{id}",JWTMiddleware.Handler(ProductById)).Methods("GET")
 
 	// post endpoints
-	router.HandleFunc("/api/create-user", CreateUser).Methods("POST")
-	router.HandleFunc("/api/create-product", CreateProduct).Methods("POST")
+	router.Handle("/api/create-user", JWTMiddleware.Handler(CreateUser)).Methods("POST")
+	router.Handle("/api/create-product", JWTMiddleware.Handler(CreateProduct)).Methods("POST")
 
 	// delete endpoints
-	router.HandleFunc("/api/delete-user/{id}",DeleteUser).Methods("DELETE")
-	router.HandleFunc("/api/delete-product/{id}",DeleteProduct).Methods("DELETE")
+	router.Handle("/api/delete-user/{id}",JWTMiddleware.Handler(DeleteUser)).Methods("DELETE")
+	router.Handle("/api/delete-product/{id}",JWTMiddleware.Handler(DeleteProduct)).Methods("DELETE")
 
 	// update endpoints
-	router.HandleFunc("/api/update-user/{id}", UpdateUser).Methods("PUT")
+	router.Handle("/api/update-user/{id}", JWTMiddleware.Handler(UpdateUser)).Methods("PUT")
 	router.Handle("/api/update-product/{id}", JWTMiddleware.Handler(UpdateProduct)).Methods("PUT")
 
 	// login to get token
@@ -427,21 +436,13 @@ func main() {
 
 	// status 
 	router.HandleFunc("/api/status",Status).Methods("GET")
-
-	// test
-	router.Handle("/secret",JWTMiddleware.Handler(Secret)).Methods("GET")
-
-
 	
 	log.Fatal(http.ListenAndServe(":9000",handlers.LoggingHandler(os.Stdout,router)))
 
 }
 
-func Status(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("API is up and running"))
-}
 
-var secretKey = []byte("secret-key")
+var secretKey = []byte("your-secret-key")
 
 func Login(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type","application/json")
