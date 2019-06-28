@@ -59,7 +59,7 @@ var AllUsers = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type","application/json")
 	w.Header().Set("Accept-Charset","utf-8")
 	w.Header().Set("Content-Encoding", "gzip")
-	db, err := sql.Open("mysql",DBUSERNAME+":"+DBPASSWORD+"!@/"+DBNAME)
+	db, err := sql.Open("mysql",DBUSERNAME+":"+DBPASSWORD+"@/"+DBNAME)
 	defer db.Close()
 	if err != nil {
 		panic(err.Error())
@@ -93,7 +93,7 @@ var UserById = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Encoding", "gzip")
 	param := mux.Vars(r)
 	id := param["id"]
-	db, err := sql.Open("mysql",DBUSERNAME+":"+DBPASSWORD+"!@/"+DBNAME)
+	db, err := sql.Open("mysql",DBUSERNAME+":"+DBPASSWORD+"@/"+DBNAME)
 	defer db.Close()
 	if err != nil {
 		panic(err.Error())
@@ -143,7 +143,7 @@ var CreateUser = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	dob := data["dob"]
 	address := data["address"]
 
-	db, err := sql.Open("mysql",DBUSERNAME+":"+DBPASSWORD+"!@/"+DBNAME)
+	db, err := sql.Open("mysql",DBUSERNAME+":"+DBPASSWORD+"@/"+DBNAME)
 
 	defer db.Close()
 
@@ -171,7 +171,7 @@ var DeleteUser = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	param := mux.Vars(r)
 	id := param["id"]
 
-	db, err := sql.Open("mysql",DBUSERNAME+":"+DBPASSWORD+"!@/"+DBNAME)
+	db, err := sql.Open("mysql",DBUSERNAME+":"+DBPASSWORD+"@/"+DBNAME)
 	defer db.Close()
 
 	if err != nil {
@@ -213,7 +213,7 @@ var UpdateUser = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	address := data["address"]
 
 
-	db, err := sql.Open("mysql",DBUSERNAME+":"+DBPASSWORD+"!@/"+DBNAME)
+	db, err := sql.Open("mysql",DBUSERNAME+":"+DBPASSWORD+"@/"+DBNAME)
 
 	defer db.Close()
 
@@ -238,7 +238,7 @@ var AllProducts = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) 
 	w.Header().Set("Content-Type","application/json")
 	w.Header().Set("Accept-Charset","utf-8")
 	w.Header().Set("Content-Encoding", "gzip")
-	db, err := sql.Open("mysql",DBUSERNAME+":"+DBPASSWORD+"!@/"+DBNAME)
+	db, err := sql.Open("mysql",DBUSERNAME+":"+DBPASSWORD+"@/"+DBNAME)
 	defer db.Close()
 	if err != nil {
 		panic(err.Error())
@@ -272,7 +272,7 @@ var ProductById = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) 
 	w.Header().Set("Content-Encoding", "gzip")
 	param := mux.Vars(r)
 	id := param["id"]
-	db, err := sql.Open("mysql",DBUSERNAME+":"+DBPASSWORD+"!@/"+DBNAME)
+	db, err := sql.Open("mysql",DBUSERNAME+":"+DBPASSWORD+"@/"+DBNAME)
 	defer db.Close()
 	if err != nil {
 		panic(err.Error())
@@ -321,7 +321,7 @@ var CreateProduct = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request
 	colors := data["colors"]
 	images := data["images"]
 
-	db, err := sql.Open("mysql",DBUSERNAME+":"+DBPASSWORD+"!@/"+DBNAME)
+	db, err := sql.Open("mysql",DBUSERNAME+":"+DBPASSWORD+"@/"+DBNAME)
 
 	defer db.Close()
 
@@ -347,7 +347,7 @@ var DeleteProduct = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request
 	param := mux.Vars(r)
 	id := param["id"]
 
-	db, err := sql.Open("mysql",DBUSERNAME+":"+DBPASSWORD+"!@/"+DBNAME)
+	db, err := sql.Open("mysql",DBUSERNAME+":"+DBPASSWORD+"@/"+DBNAME)
 	defer db.Close()
 
 	if err != nil {
@@ -389,7 +389,7 @@ var UpdateProduct = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request
 	sizes := data["sizes"]
 
 
-	db, err := sql.Open("mysql",DBUSERNAME+":"+DBPASSWORD+"!@/"+DBNAME)
+	db, err := sql.Open("mysql",DBUSERNAME+":"+DBPASSWORD+"@/"+DBNAME)
 
 	defer db.Close()
 
