@@ -460,7 +460,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	username := data["username"]
 	password := data["password"]
 
-	db, err := sql.Open("mysql","root:Y7enqxal!@/ebaaba")
+	db, err := sql.Open("mysql",DBUSERNAME+":"+DBPASSWORD+"@/"+DBNAME)
 	defer db.Close()
 	if err != nil {
 		panic(err.Error())
